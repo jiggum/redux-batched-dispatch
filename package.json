@@ -1,22 +1,25 @@
 {
   "name": "redux-batched-dispatch",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "redux store enhancer to allow batched dispatch",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
+  "module": "es/index.js",
   "files": [
-    "/dist",
-    "/src"
+    "lib",
+    "es",
+    "src",
+    "dist"
   ],
   "config": {
-    "prettier_target": "src/**/*.js"
+    "lint_target": "src/**/*.js *.js"
   },
   "scripts": {
-    "build": "yarn run build:clean && yarn run build:dist",
-    "build:clean": "rimraf dist",
-    "build:dist": "babel src --out-dir dist",
-    "prettier:check": "yarn prettier --debug-check $npm_package_config_prettier_target",
-    "prettier:write": "yarn prettier --write $npm_package_config_prettier_target",
-    "lint:eslint": "eslint src",
+    "build": "yarn run build:clean && yarn run build:all",
+    "build:clean": "rimraf dist lib es",
+    "build:all": "rollup -c",
+    "prettier:check": "yarn prettier --debug-check $npm_package_config_lint_target",
+    "prettier:write": "yarn prettier --write $npm_package_config_lint_target",
+    "lint:eslint": "eslint $npm_package_config_lint_target",
     "lint": "yarn lint:eslint && yarn prettier:check"
   },
   "repository": {
@@ -57,7 +60,12 @@
     "eslint-plugin-prettier": "^3.1.0",
     "husky": "^2.2.0",
     "prettier": "1.17.0",
-    "rimraf": "^2.6.3"
+    "rimraf": "^2.6.3",
+    "rollup": "^1.11.3",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-node-resolve": "^4.2.4",
+    "rollup-plugin-uglify": "^6.0.2"
   },
   "peerDependencies": {
     "redux": ">=1.0.0"
