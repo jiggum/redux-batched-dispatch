@@ -3,7 +3,13 @@
     "airbnb-base",
     "prettier"
   ],
-  "plugins": ["prettier"],
+  "plugins": [
+    "prettier",
+    "jest"
+  ],
+  "env": {
+    "jest/globals": true
+  },
   "rules": {
     "prettier/prettier": "error",
     "operator-linebreak": ["error", "after"]

@@ -12,14 +12,14 @@ export default function reduxBatch(next) {
     })
   }
 
-  // Same as https://github.com/reduxjs/redux/blob/master/src/createStore.js - ensureCanMutateNextListeners
+  // https://github.com/reduxjs/redux/blob/344d0e2347b3fc2221e626d495f4a12ac95907f0/src/createStore.js#L73
   function ensureCanMutateNextListeners() {
     if (nextListeners === currentListeners) {
       nextListeners = currentListeners.slice()
     }
   }
 
-  // Same as https://github.com/reduxjs/redux/blob/master/src/createStore.js - subscribe
+  // https://github.com/reduxjs/redux/blob/344d0e2347b3fc2221e626d495f4a12ac95907f0/src/createStore.js#L119
   function subscribe(listener) {
     if (typeof listener !== 'function') {
       throw new Error('Expected the listener to be a function.')

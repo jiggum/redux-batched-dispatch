@@ -20,7 +20,8 @@
     "prettier:check": "yarn prettier --debug-check $npm_package_config_lint_target",
     "prettier:write": "yarn prettier --write $npm_package_config_lint_target",
     "lint:eslint": "eslint $npm_package_config_lint_target",
-    "lint": "yarn lint:eslint && yarn prettier:check"
+    "lint": "yarn lint:eslint && yarn prettier:check",
+    "test": "yarn jest"
   },
   "repository": {
     "type": "git",
@@ -28,7 +29,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint"
+      "pre-commit": "yarn lint && yarn test"
     }
   },
   "keywords": [
@@ -57,15 +58,19 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jest": "^22.5.1",
     "eslint-plugin-prettier": "^3.1.0",
     "husky": "^2.2.0",
+    "jest": "^24.8.0",
     "prettier": "1.17.0",
+    "redux": "^4.0.1",
     "rimraf": "^2.6.3",
     "rollup": "^1.11.3",
     "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-node-resolve": "^4.2.4",
-    "rollup-plugin-uglify": "^6.0.2"
+    "rollup-plugin-uglify": "^6.0.2",
+    "rxjs": "^6.5.2"
   },
   "peerDependencies": {
     "redux": ">=1.0.0"
