@@ -53,3 +53,7 @@ export function unknownAction() {
     type: UNKNOWN_ACTION,
   }
 }
+
+export function unknownActions() {
+  return [unknownAction(), unknownAction(), unknownAction()]
+}

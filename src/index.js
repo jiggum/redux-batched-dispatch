@@ -1,6 +1,6 @@
 import $$observable from 'symbol-observable'
 
-export default function reduxBatch(next) {
+export default function reduxBatchedDispatch(next) {
   let currentListeners = []
   let nextListeners = currentListeners
   let isDispatching = false

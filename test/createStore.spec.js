@@ -13,6 +13,7 @@ import {
   unsubscribeInMiddle,
   throwError,
   unknownAction,
+  unknownActions,
 } from './helpers/actionCreators'
 import * as reducers from './helpers/reducers'
 
@@ -201,7 +202,7 @@ describe('createStore', () => {
     const listenerA = jest.fn()
     const listenerB = jest.fn()
 
-    let unsubscribeA = store.subscribe(listenerA)
+    const unsubscribeA = store.subscribe(listenerA)
     store.dispatch(unknownAction())
     expect(listenerA.mock.calls.length).toBe(1)
     expect(listenerB.mock.calls.length).toBe(0)
@@ -234,7 +235,7 @@ describe('createStore', () => {
     expect(listenerA.mock.calls.length).toBe(3)
     expect(listenerB.mock.calls.length).toBe(2)
 
-    unsubscribeA = store.subscribe(listenerA)
+    store.subscribe(listenerA)
     expect(listenerA.mock.calls.length).toBe(3)
     expect(listenerB.mock.calls.length).toBe(2)
 
@@ -422,9 +423,10 @@ describe('createStore', () => {
     store.dispatch(addTodo('Hello'))
   })
 
-  it('only accepts plain object actions', () => {
+  it('only accepts plain object and array of actions', () => {
     const store = createStore(reducers.todos, reduxBatchedDispatch)
     expect(() => store.dispatch(unknownAction())).not.toThrow()
+    expect(() => store.dispatch(unknownActions())).not.toThrow()
 
     function AwesomeMap() {}
 
