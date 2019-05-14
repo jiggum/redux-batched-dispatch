@@ -11,7 +11,7 @@
     "dist"
   ],
   "config": {
-    "lint_target": "src/**/*.js *.js"
+    "lint_target": "src/**/*.js *.js test/**/*.js"
   },
   "scripts": {
     "build": "yarn run build:clean && yarn run build:all",
@@ -48,6 +48,7 @@
   },
   "homepage": "https://github.com/jiggum/redux-batched-dispatch",
   "dependencies": {
+    "redux-thunk": "^2.3.0",
     "symbol-observable": "^1.2.0"
   },
   "devDependencies": {

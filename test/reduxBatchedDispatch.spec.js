@@ -1,8 +1,10 @@
 import { createStore, applyMiddleware } from 'redux'
 import $$observable from 'symbol-observable'
+import thunk from 'redux-thunk'
 
 import { addTodo, unknownActions } from './helpers/actionCreators'
 import * as reducers from './helpers/reducers'
+import mockFetch from './helpers/mockFetch'
 
 import reduxBatchedDispatch from '../src'
 
@@ -79,6 +81,78 @@ describe('reduxBatchedDispatch', () => {
       store.dispatch(unknownActions())
       expect(listenerA.mock.calls.length).toBe(3)
       expect(listenerB.mock.calls.length).toBe(2)
+    })
+  })
+
+  describe('redux-thunk', () => {
+    it('dispatch batched actions before thunk', async () => {
+      const store = createStore(
+        reducers.todos,
+        reduxBatchedDispatch(applyMiddleware(thunk)),
+      )
+
+      const thunkAction = dispatch => {
+        dispatch(addTodo('Hello'))
+        return mockFetch({ response: 'Actions' }).then(
+          response => dispatch(addTodo(response)),
+          error => dispatch(addTodo(error)),
+        )
+      }
+
+      expect(store.getState()).toEqual([])
+      const [thunkPromise] = store.dispatch([thunkAction, addTodo('Batched')])
+      expect(store.getState()).toEqual([
+        {
+          id: 1,
+          text: 'Hello',
+        },
+        {
+          id: 2,
+          text: 'Batched',
+        },
+      ])
+      await thunkPromise
+      expect(store.getState()).toEqual([
+        {
+          id: 1,
+          text: 'Hello',
+        },
+        {
+          id: 2,
+          text: 'Batched',
+        },
+        {
+          id: 3,
+          text: 'Actions',
+        },
+      ])
+    })
+
+    it('dispatch batched actions after thunk', async () => {
+      const store = createStore(
+        reducers.todos,
+        reduxBatchedDispatch(applyMiddleware(thunk)),
+      )
+
+      const thunkAction = dispatch => {
+        return mockFetch({ response: ['Hello', 'World'] }).then(
+          response => dispatch(response.map(todo => addTodo(todo))),
+          error => dispatch(addTodo(error)),
+        )
+      }
+
+      expect(store.getState()).toEqual([])
+      await store.dispatch(thunkAction)
+      expect(store.getState()).toEqual([
+        {
+          id: 1,
+          text: 'Hello',
+        },
+        {
+          id: 2,
+          text: 'World',
+        },
+      ])
     })
   })
 })
