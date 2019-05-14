@@ -21,7 +21,7 @@ import reduxBatchedDispatch from '../src'
 
 describe('createStore', () => {
   it('exposes the public API', () => {
-    const store = createStore(combineReducers(reducers), reduxBatchedDispatch)
+    const store = createStore(combineReducers(reducers), reduxBatchedDispatch())
     const methods = Object.keys(store)
 
     expect(methods.length).toBe(4)
@@ -40,7 +40,7 @@ describe('createStore', () => {
           text: 'Hello',
         },
       ],
-      reduxBatchedDispatch,
+      reduxBatchedDispatch(),
     )
     expect(store.getState()).toEqual([
       {
@@ -51,7 +51,7 @@ describe('createStore', () => {
   })
 
   it('applies the reducer to the previous state', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     expect(store.getState()).toEqual([])
 
     store.dispatch(unknownAction())
@@ -87,7 +87,7 @@ describe('createStore', () => {
           text: 'Hello',
         },
       ],
-      reduxBatchedDispatch,
+      reduxBatchedDispatch(),
     )
     expect(store.getState()).toEqual([
       {
@@ -118,7 +118,7 @@ describe('createStore', () => {
   })
 
   it('preserves the state when replacing a reducer', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     store.dispatch(addTodo('Hello'))
     store.dispatch(addTodo('World'))
     expect(store.getState()).toEqual([
@@ -198,7 +198,7 @@ describe('createStore', () => {
   })
 
   it('supports multiple subscriptions', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     const listenerA = jest.fn()
     const listenerB = jest.fn()
 
@@ -245,7 +245,7 @@ describe('createStore', () => {
   })
 
   it('only removes listener once when unsubscribe is called', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     const listenerA = jest.fn()
     const listenerB = jest.fn()
 
@@ -261,7 +261,7 @@ describe('createStore', () => {
   })
 
   it('only removes relevant listener when unsubscribe is called', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     const listener = jest.fn()
 
     store.subscribe(listener)
@@ -275,7 +275,7 @@ describe('createStore', () => {
   })
 
   it('supports removing a subscription within a subscription', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     const listenerA = jest.fn()
     const listenerB = jest.fn()
     const listenerC = jest.fn()
@@ -296,7 +296,7 @@ describe('createStore', () => {
   })
 
   it('notifies all subscribers about current dispatch regardless if any of them gets unsubscribed in the process', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
 
     const unsubscribeHandles = []
     const doUnsubscribeAll = () =>
@@ -327,7 +327,7 @@ describe('createStore', () => {
   })
 
   it('notifies only subscribers active at the moment of current dispatch', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
 
     const listener1 = jest.fn()
     const listener2 = jest.fn()
@@ -359,7 +359,7 @@ describe('createStore', () => {
   })
 
   it('uses the last snapshot of subscribers during nested dispatch', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
 
     const listener1 = jest.fn()
     const listener2 = jest.fn()
@@ -401,7 +401,7 @@ describe('createStore', () => {
   })
 
   it('provides an up-to-date state when a subscriber is notified', done => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     store.subscribe(() => {
       expect(store.getState()).toEqual([
         {
@@ -415,7 +415,7 @@ describe('createStore', () => {
   })
 
   it('does not leak private listeners array', done => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     store.subscribe(function() {
       expect(this).toBe(undefined)
       done()
@@ -424,7 +424,7 @@ describe('createStore', () => {
   })
 
   it('only accepts plain object and array of actions', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     expect(() => store.dispatch(unknownAction())).not.toThrow()
     expect(() => store.dispatch(unknownActions())).not.toThrow()
 
@@ -448,7 +448,7 @@ describe('createStore', () => {
 
     const store = createStore(
       combineReducers({ foo, bar }),
-      reduxBatchedDispatch,
+      reduxBatchedDispatch(),
     )
 
     store.subscribe(function kindaComponentDidUpdate() {
@@ -468,7 +468,7 @@ describe('createStore', () => {
   it('does not allow dispatch() from within a reducer', () => {
     const store = createStore(
       reducers.dispatchInTheMiddleOfReducer,
-      reduxBatchedDispatch,
+      reduxBatchedDispatch(),
     )
 
     expect(() =>
@@ -481,7 +481,7 @@ describe('createStore', () => {
   it('does not allow getState() from within a reducer', () => {
     const store = createStore(
       reducers.getStateInTheMiddleOfReducer,
-      reduxBatchedDispatch,
+      reduxBatchedDispatch(),
     )
 
     expect(() =>
@@ -492,7 +492,7 @@ describe('createStore', () => {
   it('does not allow subscribe() from within a reducer', () => {
     const store = createStore(
       reducers.subscribeInTheMiddleOfReducer,
-      reduxBatchedDispatch,
+      reduxBatchedDispatch(),
     )
 
     expect(() =>
@@ -503,7 +503,7 @@ describe('createStore', () => {
   it('does not allow unsubscribe from subscribe() from within a reducer', () => {
     const store = createStore(
       reducers.unsubscribeInTheMiddleOfReducer,
-      reduxBatchedDispatch,
+      reduxBatchedDispatch(),
     )
     const unsubscribe = store.subscribe(() => {})
 
@@ -515,7 +515,7 @@ describe('createStore', () => {
   it('recovers from an error within a reducer', () => {
     const store = createStore(
       reducers.errorThrowingReducer,
-      reduxBatchedDispatch,
+      reduxBatchedDispatch(),
     )
     expect(() => store.dispatch(throwError())).toThrow()
 
@@ -523,21 +523,21 @@ describe('createStore', () => {
   })
 
   it('throws if action type is missing', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     expect(() => store.dispatch({})).toThrow(
       /Actions may not have an undefined "type" property/,
     )
   })
 
   it('throws if action type is undefined', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     expect(() => store.dispatch({ type: undefined })).toThrow(
       /Actions may not have an undefined "type" property/,
     )
   })
 
   it('does not throw if action type is falsy', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     expect(() => store.dispatch({ type: false })).not.toThrow()
     expect(() => store.dispatch({ type: 0 })).not.toThrow()
     expect(() => store.dispatch({ type: null })).not.toThrow()
@@ -545,7 +545,7 @@ describe('createStore', () => {
   })
 
   it('throws if listener is not a function', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
 
     expect(() => store.subscribe()).toThrow()
 
@@ -558,19 +558,19 @@ describe('createStore', () => {
 
   describe('Symbol.observable interop point', () => {
     it('should exist', () => {
-      const store = createStore(() => {}, reduxBatchedDispatch)
+      const store = createStore(() => {}, reduxBatchedDispatch())
       expect(typeof store[$$observable]).toBe('function')
     })
 
     describe('returned value', () => {
       it('should be subscribable', () => {
-        const store = createStore(() => {}, reduxBatchedDispatch)
+        const store = createStore(() => {}, reduxBatchedDispatch())
         const obs = store[$$observable]()
         expect(typeof obs.subscribe).toBe('function')
       })
 
       it('should throw a TypeError if an observer object is not supplied to subscribe', () => {
-        const store = createStore(() => {}, reduxBatchedDispatch)
+        const store = createStore(() => {}, reduxBatchedDispatch())
         const obs = store[$$observable]()
 
         expect(function() {
@@ -591,7 +591,7 @@ describe('createStore', () => {
       })
 
       it('should return a subscription object when subscribed', () => {
-        const store = createStore(() => {}, reduxBatchedDispatch)
+        const store = createStore(() => {}, reduxBatchedDispatch())
         const obs = store[$$observable]()
         const sub = obs.subscribe({})
         expect(typeof sub.unsubscribe).toBe('function')
@@ -609,7 +609,7 @@ describe('createStore', () => {
 
       const store = createStore(
         combineReducers({ foo, bar }),
-        reduxBatchedDispatch,
+        reduxBatchedDispatch(),
       )
       const observable = store[$$observable]()
       const results = []
@@ -641,7 +641,7 @@ describe('createStore', () => {
 
       const store = createStore(
         combineReducers({ foo, bar }),
-        reduxBatchedDispatch,
+        reduxBatchedDispatch(),
       )
       const observable = store[$$observable]()
       const results = []
@@ -670,7 +670,7 @@ describe('createStore', () => {
 
       const store = createStore(
         combineReducers({ foo, bar }),
-        reduxBatchedDispatch,
+        reduxBatchedDispatch(),
       )
       const observable = from(store)
       const results = []
@@ -702,7 +702,7 @@ describe('createStore', () => {
           w: (s = 0) => s,
         }),
       }),
-      reduxBatchedDispatch,
+      reduxBatchedDispatch(),
     )
 
     store.replaceReducer(

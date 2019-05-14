@@ -1,6 +1,6 @@
 import $$observable from 'symbol-observable'
 
-export default function reduxBatchedDispatch(next) {
+function enhancer(next) {
   let currentListeners = []
   let nextListeners = currentListeners
   let isDispatching = false
@@ -114,4 +114,11 @@ export default function reduxBatchedDispatch(next) {
       [$$observable]: observable,
     }
   }
+}
+
+export default function reduxBatchedDispatch(ohterEnhancer) {
+  if (typeof ohterEnhancer === 'function') {
+    return next => enhancer(ohterEnhancer(enhancer(next)))
+  }
+  return enhancer
 }

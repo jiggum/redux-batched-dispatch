@@ -1,4 +1,4 @@
-import { createStore } from 'redux'
+import { createStore, applyMiddleware } from 'redux'
 import $$observable from 'symbol-observable'
 
 import { addTodo, unknownActions } from './helpers/actionCreators'
@@ -8,7 +8,7 @@ import reduxBatchedDispatch from '../src'
 
 describe('reduxBatchedDispatch', () => {
   it('dispatch with batched actions', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch)
+    const store = createStore(reducers.todos, reduxBatchedDispatch())
     expect(store.getState()).toEqual([])
 
     store.dispatch([addTodo('Hello'), addTodo('World')])
@@ -26,7 +26,7 @@ describe('reduxBatchedDispatch', () => {
 
   describe('subscribe', () => {
     it('liteners must call once when dispatch batched actions', () => {
-      const store = createStore(reducers.todos, reduxBatchedDispatch)
+      const store = createStore(reducers.todos, reduxBatchedDispatch())
       const listenerA = jest.fn()
       const listenerB = jest.fn()
 
@@ -44,7 +44,7 @@ describe('reduxBatchedDispatch', () => {
 
   describe('subscribe', () => {
     it('liteners must call once when dispatch batched actions', () => {
-      const store = createStore(reducers.todos, reduxBatchedDispatch)
+      const store = createStore(reducers.todos, reduxBatchedDispatch())
       const listenerA = jest.fn()
       const listenerB = jest.fn()
 
@@ -62,7 +62,7 @@ describe('reduxBatchedDispatch', () => {
 
   describe('Symbol.observable', () => {
     it('liteners must call once when dispatch batched actions', () => {
-      const store = createStore(reducers.todos, reduxBatchedDispatch)
+      const store = createStore(reducers.todos, reduxBatchedDispatch())
       const observable = store[$$observable]()
       const listenerA = jest.fn()
       const listenerB = jest.fn()
