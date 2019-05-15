@@ -11,7 +11,7 @@
     "dist"
   ],
   "config": {
-    "lint_target": "src/**/*.js *.js test/**/*.js"
+    "lint_target": "src/**/*.js *.js test/**/*.js test/**/*.spec.js"
   },
   "scripts": {
     "build": "yarn run build:clean && yarn run build:all",
@@ -21,7 +21,7 @@
     "prettier:write": "yarn prettier --write $npm_package_config_lint_target",
     "lint:eslint": "eslint $npm_package_config_lint_target",
     "lint": "yarn lint:eslint && yarn prettier:check",
-    "test": "yarn jest"
+    "test": "cross-env BABEL_ENV=test yarn jest"
   },
   "repository": {
     "type": "git",
@@ -55,6 +55,7 @@
     "@babel/core": "^7.4.4",
     "@babel/preset-env": "^7.4.4",
     "babel-jest": "^24.8.0",
+    "cross-env": "^5.2.0",
     "eslint": "^5.3.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-prettier": "^4.2.0",

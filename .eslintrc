@@ -12,6 +12,5 @@
   },
   "rules": {
     "prettier/prettier": "error",
-    "operator-linebreak": ["error", "after"]
   }
 }
