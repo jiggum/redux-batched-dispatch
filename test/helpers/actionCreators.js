@@ -1,6 +1,7 @@
 // Copied from https://github.com/reduxjs/redux/blob/344d0e2347b3fc2221e626d495f4a12ac95907f0/test/helpers/actionCreators.js
 
 import {
+  REQUEST_ADD_TODO,
   ADD_TODO,
   DISPATCH_IN_MIDDLE,
   GET_STATE_IN_MIDDLE,
@@ -9,6 +10,10 @@ import {
   THROW_ERROR,
   UNKNOWN_ACTION,
 } from './actionTypes'
+
+export function requestAddTodo() {
+  return { type: REQUEST_ADD_TODO }
+}
 
 export function addTodo(text) {
   return { type: ADD_TODO, text }
