@@ -107,6 +107,12 @@ function enhancer(next) {
       return result
     }
 
+    store.subscribe(() => {
+      if (!isDispatching) {
+        notifyListeners()
+      }
+    })
+
     return {
       ...store,
       dispatch,
@@ -118,6 +124,9 @@ function enhancer(next) {
 
 export default function reduxBatchedDispatch(ohterEnhancer) {
   if (typeof ohterEnhancer === 'function') {
+    // why enhancers are duplicated?
+    // without outer enhancer, the store can't subscribe batch action emitted from ohterEnhancer(ex: thunk / saga / observable)
+    // similarly, without inner enhancer, the store can't subscribe batch action emitted from standard dispatch
     return next => enhancer(ohterEnhancer(enhancer(next)))
   }
   return enhancer
