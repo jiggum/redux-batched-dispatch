@@ -4,16 +4,3 @@ node_js:
 script:
   - yarn lint
   - yarn test
-cache:
-   directories:
-     - node_modules
-before_deploy:
-  - yarn build
-deploy:
-  provider: npm
-  email: 0s.dongmin@gmail.com
-  api_key:
-    secure: r8FoT+bu/GJ8vFbMRg5Bst/Wky1DnfuMMcUXZK1E4Bnisq6yYn0H3y+U1cHZwiCbvL+Qa+d4nmwy5A2Or5L1SlMiDp4/442ZmcrTDE/jcAG1rUelGaYXEMbyIPIiRBVaghn0zTvfZDpc94z0iAPt+pDN0ORtvoYGXWFs+21CADn1XUqskbHr4ErWd2aOpgq7cVhOpRYpAzP6eBNVdLtSkJKjf1PgE2xYrKmm3BcvIWK9YCFrGY0Al04rLEjmb/cPy9PlXzbzT4QyeUu9sVm+xCh8pHqkdE6xiNfj4+psSzoVh493rmmm2QpDL37D7+ULxUPs3U04YMpd+zvIGLmcIuqPgPmmz0RPDmzWsZs1rbXkTjfUjFB+uvzKKVpopLg/kynQcMCaKZTMFy4zCMlopAZG9mXLzXV5f4YzE43xlGtILLXdCi99cFYQV77UNNhbiIsO9/JaP8i12DcNUzK3daGO4Pv2Ctxno6Q3QN/uwD2z8Do58wVaRggVM6YDsSQY5HNKLID6zl3UZVMWrQgmlNmSeLB1CvNvZoub7Lzyxm1Ks95CAkRVq5HnpjdtLB+x7GlCTDV3vbWMbcCJzpjgeUzN3LJtWzvFLgXiKWbx31hHOhImsKwuc6Y3kt/NNmHL4j7BCyrtvm6yQrpXDOsk6+6R9u546zpPUT5mvCiXhzo=
-  on:
-    tags: true
-    branch: master
