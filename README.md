@@ -126,6 +126,6 @@ const reduxBatchedDispatch = require('redux-batched-dispatch');
 
 Add below `<script>` tag to the HTML page right before the closing `</body>` tag
 ```html
-<script src="https://unpkg.com/redux-batched-dispatch@0.3/dist/index.js" crossorigin></script>
+<script src="https://unpkg.com/redux-batched-dispatch@0.4/dist/index.js" crossorigin></script>
 ```
 And use global `reduxBatchedDispatch` variable
