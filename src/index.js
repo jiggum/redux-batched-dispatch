@@ -1,6 +1,6 @@
 import $$observable from 'symbol-observable'
 
-function enhancer(next) {
+function batchedActionEnhancer(next) {
   let currentListeners = []
   let nextListeners = currentListeners
   let isDispatching = false
@@ -122,12 +122,71 @@ function enhancer(next) {
   }
 }
 
-export default function reduxBatchedDispatch(ohterEnhancer) {
-  if (typeof ohterEnhancer === 'function') {
-    // why enhancers are duplicated?
-    // without outer enhancer, the store can't subscribe batch action emitted from ohterEnhancer(ex: thunk / saga / observable)
-    // similarly, without inner enhancer, the store can't subscribe batch action emitted from standard dispatch
-    return next => enhancer(ohterEnhancer(enhancer(next)))
+export default function reduxBatchedDispatch(enhancer, dispatchCreatorMap) {
+  if (typeof enhancer === 'object' && dispatchCreatorMap === undefined) {
+    dispatchCreatorMap = enhancer
+    enhancer = undefined
   }
-  return enhancer
+
+  if (enhancer !== undefined && enhancer !== null && typeof enhancer !== 'function') {
+    throw new Error('Expected the enhancer to be a function.')
+  }
+
+  const actionQueueMap = {}
+  const dispatchMap = {}
+
+  return next => {
+    return (...args) => {
+      const createStore = (() => {
+        if (typeof enhancer === 'function') {
+          // why enhancers are duplicated?
+          // without outer enhancer, the store can't subscribe batch action emitted from extra enhancer(ex: thunk / saga / observable)
+          // similarly, without inner enhancer, the store can't subscribe batch action emitted from standard dispatch
+          return batchedActionEnhancer(enhancer(batchedActionEnhancer(next)))
+        }
+        return batchedActionEnhancer(next)
+      })()
+
+      const store = createStore(...args)
+
+      if (dispatchCreatorMap) {
+        Object.keys(dispatchCreatorMap).forEach(dispatchType => {
+          if (typeof dispatchCreatorMap[dispatchType] !== 'function') {
+            throw new Error('Expected the dispatch creator to be a function.')
+          }
+
+          actionQueueMap[dispatchType] = []
+          dispatchMap[dispatchType] = dispatchCreatorMap[dispatchType](() => {
+            const queue = actionQueueMap[dispatchType]
+            if (queue.length > 0) {
+              store.dispatch(queue)
+              actionQueueMap[dispatchType] = []
+            }
+          })
+        })
+      }
+
+      function dispatch(action, dispatchType) {
+        if (dispatchType === undefined) {
+          return store.dispatch(action)
+        }
+
+        if (!Object.hasOwnProperty.call(dispatchCreatorMap, dispatchType)) {
+          throw new Error(
+            `Invalid dispatch type '${dispatchType}'. You have to declare dispatch creator with key of '${dispatchType}'`,
+          )
+        }
+
+        actionQueueMap[dispatchType].push(action)
+        dispatchMap[dispatchType](action)
+
+        return undefined
+      }
+
+      return {
+        ...store,
+        dispatch,
+      }
+    }
+  }
 }

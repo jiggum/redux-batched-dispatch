@@ -7,13 +7,12 @@ import thunk from 'redux-thunk'
 import { createEpicMiddleware, ofType } from 'redux-observable'
 import createSagaMiddleware from 'redux-saga'
 import { call, put, takeEvery } from 'redux-saga/effects'
+import throttle from 'lodash.throttle'
+import debounce from 'lodash.debounce'
 
 import { REQUEST_ADD_TODO, DISPATCH_IN_OBSERVABLE } from './helpers/actionTypes'
-import {
-  requestAddTodo,
-  addTodo,
-  unknownActions,
-} from './helpers/actionCreators'
+import { DISPATCH_THROTTLE, DISPATCH_DEBOUNCE } from './helpers/dispatchTypes'
+import { addLetter, requestAddTodo, addTodo, unknownActions } from './helpers/actionCreators'
 import * as reducers from './helpers/reducers'
 import mockFetch from './helpers/mockFetch'
 
@@ -35,24 +34,6 @@ describe('reduxBatchedDispatch', () => {
         text: 'World',
       },
     ])
-  })
-
-  describe('subscribe', () => {
-    it('liteners must call once when dispatch batched actions', () => {
-      const store = createStore(reducers.todos, reduxBatchedDispatch())
-      const listenerA = jest.fn()
-      const listenerB = jest.fn()
-
-      store.subscribe(listenerA)
-      store.dispatch(unknownActions())
-      expect(listenerA.mock.calls.length).toBe(1)
-      expect(listenerB.mock.calls.length).toBe(0)
-
-      store.subscribe(listenerB)
-      store.dispatch(unknownActions())
-      expect(listenerA.mock.calls.length).toBe(2)
-      expect(listenerB.mock.calls.length).toBe(1)
-    })
   })
 
   describe('subscribe', () => {
@@ -97,16 +78,11 @@ describe('reduxBatchedDispatch', () => {
 
   describe('redux-thunk', () => {
     it('dispatch batched actions before thunk', async () => {
-      const store = createStore(
-        reducers.todos,
-        reduxBatchedDispatch(applyMiddleware(thunk)),
-      )
+      const store = createStore(reducers.todos, reduxBatchedDispatch(applyMiddleware(thunk)))
 
       const thunkAction = dispatch => {
         dispatch(addTodo('Hello'))
-        return mockFetch({ response: 'Actions' }).then(response =>
-          dispatch(addTodo(response)),
-        )
+        return mockFetch({ response: 'Actions' }).then(response => dispatch(addTodo(response)))
       }
 
       expect(store.getState()).toEqual([])
@@ -139,10 +115,7 @@ describe('reduxBatchedDispatch', () => {
     })
 
     it('dispatch batched actions after thunk', async () => {
-      const store = createStore(
-        reducers.todos,
-        reduxBatchedDispatch(applyMiddleware(thunk)),
-      )
+      const store = createStore(reducers.todos, reduxBatchedDispatch(applyMiddleware(thunk)))
 
       const thunkAction = dispatch => {
         return mockFetch({ response: ['Hello', 'World'] }).then(response =>
@@ -204,11 +177,7 @@ describe('reduxBatchedDispatch', () => {
         expectObservable(store$).toBe('0-1-2', {
           0: [],
           1: [{ id: 1, text: 'Hello' }, { id: 2, text: 'Batched' }],
-          2: [
-            { id: 1, text: 'Hello' },
-            { id: 2, text: 'Batched' },
-            { id: 3, text: 'Actions' },
-          ],
+          2: [{ id: 1, text: 'Hello' }, { id: 2, text: 'Batched' }, { id: 3, text: 'Actions' }],
         })
       })
     })
@@ -222,9 +191,7 @@ describe('reduxBatchedDispatch', () => {
         const rootEpic = action$ =>
           action$.pipe(
             ofType(REQUEST_ADD_TODO),
-            concatMap(() =>
-              cold('--a', { a: [addTodo('Hello'), addTodo('World')] }),
-            ),
+            concatMap(() => cold('--a', { a: [addTodo('Hello'), addTodo('World')] })),
           )
 
         const epicMiddleware = createEpicMiddleware()
@@ -363,6 +330,200 @@ describe('reduxBatchedDispatch', () => {
       })
       expect(store.getState()).toEqual([])
       store.dispatch(requestAddTodo())
+    })
+  })
+
+  describe('with dispatch creators', () => {
+    it('throttled dispatch', done => {
+      const store = createStore(
+        reducers.todos,
+        reduxBatchedDispatch({
+          [DISPATCH_THROTTLE]: dispatch => throttle(dispatch, 100),
+        }),
+      )
+
+      function* stateCheckerGen() {
+        yield expect(store.getState()).toEqual([
+          {
+            id: 1,
+            text: 'Hello',
+          },
+        ])
+        yield expect(store.getState()).toEqual([
+          {
+            id: 1,
+            text: 'Hello',
+          },
+          {
+            id: 2,
+            text: 'Rate',
+          },
+          {
+            id: 3,
+            text: 'Limited',
+          },
+        ])
+        yield (() => {
+          expect(store.getState()).toEqual([
+            {
+              id: 1,
+              text: 'Hello',
+            },
+            {
+              id: 2,
+              text: 'Rate',
+            },
+            {
+              id: 3,
+              text: 'Limited',
+            },
+            {
+              id: 4,
+              text: 'Dispatch',
+            },
+          ])
+          done()
+        })()
+      }
+
+      const stateChecker = stateCheckerGen()
+
+      store.subscribe(() => {
+        stateChecker.next()
+      })
+
+      expect(store.getState()).toEqual([])
+      setTimeout(() => {
+        store.dispatch(addTodo('Hello'), DISPATCH_THROTTLE)
+      }, 0)
+      setTimeout(() => {
+        store.dispatch(addTodo('Rate'), DISPATCH_THROTTLE)
+      }, 20)
+      setTimeout(() => {
+        store.dispatch(addTodo('Limited'), DISPATCH_THROTTLE)
+      }, 40)
+      setTimeout(() => {
+        store.dispatch(addTodo('Dispatch'), DISPATCH_THROTTLE)
+      }, 200)
+    })
+
+    it('debounced dispatch', done => {
+      const store = createStore(
+        reducers.todos,
+        reduxBatchedDispatch({
+          [DISPATCH_DEBOUNCE]: dispatch => debounce(dispatch, 100),
+        }),
+      )
+
+      function* stateCheckerGen() {
+        yield expect(store.getState()).toEqual([
+          {
+            id: 1,
+            text: 'Hello',
+          },
+          {
+            id: 2,
+            text: 'Rate',
+          },
+          {
+            id: 3,
+            text: 'Limited',
+          },
+        ])
+        yield (() => {
+          expect(store.getState()).toEqual([
+            {
+              id: 1,
+              text: 'Hello',
+            },
+            {
+              id: 2,
+              text: 'Rate',
+            },
+            {
+              id: 3,
+              text: 'Limited',
+            },
+            {
+              id: 4,
+              text: 'Dispatch',
+            },
+          ])
+          done()
+        })()
+      }
+
+      const stateChecker = stateCheckerGen()
+
+      store.subscribe(() => {
+        stateChecker.next()
+      })
+
+      expect(store.getState()).toEqual([])
+      setTimeout(() => {
+        store.dispatch(addTodo('Hello'), DISPATCH_DEBOUNCE)
+      }, 0)
+      setTimeout(() => {
+        store.dispatch(addTodo('Rate'), DISPATCH_DEBOUNCE)
+      }, 70)
+      setTimeout(() => {
+        store.dispatch(addTodo('Limited'), DISPATCH_DEBOUNCE)
+      }, 140)
+      setTimeout(() => {
+        store.dispatch(addTodo('Dispatch'), DISPATCH_DEBOUNCE)
+      }, 300)
+    })
+
+    it('integration test', done => {
+      const store = createStore(
+        reducers.letters,
+        reduxBatchedDispatch({
+          [DISPATCH_THROTTLE]: dispatch => throttle(dispatch, 100, { leading: false }),
+          [DISPATCH_DEBOUNCE]: dispatch => debounce(dispatch, 100),
+        }),
+      )
+
+      function* stateCheckerGen() {
+        yield expect(store.getState()).toEqual(['T1', 'T2', 'T3'])
+        yield expect(store.getState()).toEqual(['T1', 'T2', 'T3', 'D1', 'D2', 'D3'])
+        yield expect(store.getState()).toEqual(['T1', 'T2', 'T3', 'D1', 'D2', 'D3', 'T4'])
+        yield (() => {
+          expect(store.getState()).toEqual(['T1', 'T2', 'T3', 'D1', 'D2', 'D3', 'T4', 'D4'])
+          done()
+        })()
+      }
+
+      const stateChecker = stateCheckerGen()
+
+      store.subscribe(() => {
+        stateChecker.next()
+      })
+
+      expect(store.getState()).toEqual([])
+      setTimeout(() => {
+        store.dispatch(addLetter('T1'), DISPATCH_THROTTLE)
+      }, 0)
+      setTimeout(() => {
+        store.dispatch(addLetter('T2'), DISPATCH_THROTTLE)
+      }, 20)
+      setTimeout(() => {
+        store.dispatch(addLetter('T3'), DISPATCH_THROTTLE)
+      }, 40)
+      setTimeout(() => {
+        store.dispatch(addLetter('T4'), DISPATCH_THROTTLE)
+      }, 260)
+      setTimeout(() => {
+        store.dispatch(addLetter('D1'), DISPATCH_DEBOUNCE)
+      }, 0)
+      setTimeout(() => {
+        store.dispatch(addLetter('D2'), DISPATCH_DEBOUNCE)
+      }, 70)
+      setTimeout(() => {
+        store.dispatch(addLetter('D3'), DISPATCH_DEBOUNCE)
+      }, 140)
+      setTimeout(() => {
+        store.dispatch(addLetter('D4'), DISPATCH_DEBOUNCE)
+      }, 300)
     })
   })
 })

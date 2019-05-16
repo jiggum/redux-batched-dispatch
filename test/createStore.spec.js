@@ -299,8 +299,7 @@ describe('createStore', () => {
     const store = createStore(reducers.todos, reduxBatchedDispatch())
 
     const unsubscribeHandles = []
-    const doUnsubscribeAll = () =>
-      unsubscribeHandles.forEach(unsubscribe => unsubscribe())
+    const doUnsubscribeAll = () => unsubscribeHandles.forEach(unsubscribe => unsubscribe())
 
     const listener1 = jest.fn()
     const listener2 = jest.fn()
@@ -416,7 +415,7 @@ describe('createStore', () => {
 
   it('does not leak private listeners array', done => {
     const store = createStore(reducers.todos, reduxBatchedDispatch())
-    store.subscribe(function() {
+    store.subscribe(() => {
       expect(this).toBe(undefined)
       done()
     })
@@ -432,9 +431,7 @@ describe('createStore', () => {
 
     const throwCandidates = [null, undefined, 42, 'hey', new AwesomeMap()]
 
-    throwCandidates.forEach(nonObject =>
-      expect(() => store.dispatch(nonObject)).toThrow(/plain/),
-    )
+    throwCandidates.forEach(nonObject => expect(() => store.dispatch(nonObject)).toThrow(/plain/))
   })
 
   it('handles nested dispatches gracefully', () => {
@@ -446,10 +443,7 @@ describe('createStore', () => {
       return action.type === 'bar' ? 2 : state
     }
 
-    const store = createStore(
-      combineReducers({ foo, bar }),
-      reduxBatchedDispatch(),
-    )
+    const store = createStore(combineReducers({ foo, bar }), reduxBatchedDispatch())
 
     store.subscribe(function kindaComponentDidUpdate() {
       const state = store.getState()
@@ -466,57 +460,40 @@ describe('createStore', () => {
   })
 
   it('does not allow dispatch() from within a reducer', () => {
-    const store = createStore(
-      reducers.dispatchInTheMiddleOfReducer,
-      reduxBatchedDispatch(),
-    )
+    const store = createStore(reducers.dispatchInTheMiddleOfReducer, reduxBatchedDispatch())
 
     expect(() =>
-      store.dispatch(
-        dispatchInMiddle(store.dispatch.bind(store, unknownAction())),
-      ),
+      store.dispatch(dispatchInMiddle(store.dispatch.bind(store, unknownAction()))),
     ).toThrow(/may not dispatch/)
   })
 
   it('does not allow getState() from within a reducer', () => {
-    const store = createStore(
-      reducers.getStateInTheMiddleOfReducer,
-      reduxBatchedDispatch(),
-    )
+    const store = createStore(reducers.getStateInTheMiddleOfReducer, reduxBatchedDispatch())
 
-    expect(() =>
-      store.dispatch(getStateInMiddle(store.getState.bind(store))),
-    ).toThrow(/You may not call store.getState()/)
+    expect(() => store.dispatch(getStateInMiddle(store.getState.bind(store)))).toThrow(
+      /You may not call store.getState()/,
+    )
   })
 
   it('does not allow subscribe() from within a reducer', () => {
-    const store = createStore(
-      reducers.subscribeInTheMiddleOfReducer,
-      reduxBatchedDispatch(),
-    )
+    const store = createStore(reducers.subscribeInTheMiddleOfReducer, reduxBatchedDispatch())
 
-    expect(() =>
-      store.dispatch(subscribeInMiddle(store.subscribe.bind(store, () => {}))),
-    ).toThrow(/You may not call store.subscribe()/)
+    expect(() => store.dispatch(subscribeInMiddle(store.subscribe.bind(store, () => {})))).toThrow(
+      /You may not call store.subscribe()/,
+    )
   })
 
   it('does not allow unsubscribe from subscribe() from within a reducer', () => {
-    const store = createStore(
-      reducers.unsubscribeInTheMiddleOfReducer,
-      reduxBatchedDispatch(),
-    )
+    const store = createStore(reducers.unsubscribeInTheMiddleOfReducer, reduxBatchedDispatch())
     const unsubscribe = store.subscribe(() => {})
 
-    expect(() =>
-      store.dispatch(unsubscribeInMiddle(unsubscribe.bind(store))),
-    ).toThrow(/You may not unsubscribe from a store/)
+    expect(() => store.dispatch(unsubscribeInMiddle(unsubscribe.bind(store)))).toThrow(
+      /You may not unsubscribe from a store/,
+    )
   })
 
   it('recovers from an error within a reducer', () => {
-    const store = createStore(
-      reducers.errorThrowingReducer,
-      reduxBatchedDispatch(),
-    )
+    const store = createStore(reducers.errorThrowingReducer, reduxBatchedDispatch())
     expect(() => store.dispatch(throwError())).toThrow()
 
     expect(() => store.dispatch(unknownAction())).not.toThrow()
@@ -524,9 +501,7 @@ describe('createStore', () => {
 
   it('throws if action type is missing', () => {
     const store = createStore(reducers.todos, reduxBatchedDispatch())
-    expect(() => store.dispatch({})).toThrow(
-      /Actions may not have an undefined "type" property/,
-    )
+    expect(() => store.dispatch({})).toThrow(/Actions may not have an undefined "type" property/)
   })
 
   it('throws if action type is undefined', () => {
@@ -573,19 +548,19 @@ describe('createStore', () => {
         const store = createStore(() => {}, reduxBatchedDispatch())
         const obs = store[$$observable]()
 
-        expect(function() {
+        expect(() => {
           obs.subscribe()
         }).toThrowError(new TypeError('Expected the observer to be an object.'))
 
-        expect(function() {
+        expect(() => {
           obs.subscribe(null)
         }).toThrowError(new TypeError('Expected the observer to be an object.'))
 
-        expect(function() {
+        expect(() => {
           obs.subscribe(() => {})
         }).toThrowError(new TypeError('Expected the observer to be an object.'))
 
-        expect(function() {
+        expect(() => {
           obs.subscribe({})
         }).not.toThrow()
       })
@@ -607,10 +582,7 @@ describe('createStore', () => {
         return action.type === 'bar' ? 2 : state
       }
 
-      const store = createStore(
-        combineReducers({ foo, bar }),
-        reduxBatchedDispatch(),
-      )
+      const store = createStore(combineReducers({ foo, bar }), reduxBatchedDispatch())
       const observable = store[$$observable]()
       const results = []
 
@@ -623,11 +595,7 @@ describe('createStore', () => {
       store.dispatch({ type: 'foo' })
       store.dispatch({ type: 'bar' })
 
-      expect(results).toEqual([
-        { foo: 0, bar: 0 },
-        { foo: 1, bar: 0 },
-        { foo: 1, bar: 2 },
-      ])
+      expect(results).toEqual([{ foo: 0, bar: 0 }, { foo: 1, bar: 0 }, { foo: 1, bar: 2 }])
     })
 
     it('should pass an integration test with an unsubscribe', () => {
@@ -639,10 +607,7 @@ describe('createStore', () => {
         return action.type === 'bar' ? 2 : state
       }
 
-      const store = createStore(
-        combineReducers({ foo, bar }),
-        reduxBatchedDispatch(),
-      )
+      const store = createStore(combineReducers({ foo, bar }), reduxBatchedDispatch())
       const observable = store[$$observable]()
       const results = []
 
@@ -668,10 +633,7 @@ describe('createStore', () => {
         return action.type === 'bar' ? 2 : state
       }
 
-      const store = createStore(
-        combineReducers({ foo, bar }),
-        reduxBatchedDispatch(),
-      )
+      const store = createStore(combineReducers({ foo, bar }), reduxBatchedDispatch())
       const observable = from(store)
       const results = []
 
@@ -683,14 +645,12 @@ describe('createStore', () => {
       sub.unsubscribe()
       store.dispatch({ type: 'bar' })
 
-      expect(results).toEqual([
-        { foo: 0, bar: 0, fromRx: true },
-        { foo: 1, bar: 0, fromRx: true },
-      ])
+      expect(results).toEqual([{ foo: 0, bar: 0, fromRx: true }, { foo: 1, bar: 0, fromRx: true }])
     })
   })
 
   it('does not log an error if parts of the current state will be ignored by a nextReducer using combineReducers', () => {
+    /* eslint-disable no-console */
     const originalConsoleError = console.error
     console.error = jest.fn()
 
@@ -715,5 +675,6 @@ describe('createStore', () => {
 
     expect(console.error.mock.calls.length).toBe(0)
     console.error = originalConsoleError
+    /* eslint-enable no-console */
   })
 })

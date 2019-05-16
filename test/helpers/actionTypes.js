@@ -1,5 +1,6 @@
 // Copied from https://github.com/reduxjs/redux/blob/344d0e2347b3fc2221e626d495f4a12ac95907f0/test/helpers/actionTypes.js
 
+export const ADD_LETTER = 'ADD_LETTER'
 export const REQUEST_ADD_TODO = 'REQUEST_ADD_TODO'
 export const ADD_TODO = 'ADD_TODO'
 export const DISPATCH_IN_MIDDLE = 'DISPATCH_IN_MIDDLE'

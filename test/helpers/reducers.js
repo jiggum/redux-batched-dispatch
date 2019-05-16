@@ -1,6 +1,7 @@
 // Copied from https://github.com/reduxjs/redux/blob/344d0e2347b3fc2221e626d495f4a12ac95907f0/test/helpers/reducers.js
 
 import {
+  ADD_LETTER,
   ADD_TODO,
   DISPATCH_IN_MIDDLE,
   GET_STATE_IN_MIDDLE,
@@ -10,9 +11,16 @@ import {
 } from './actionTypes'
 
 function id(state = []) {
-  return (
-    state.reduce((result, item) => (item.id > result ? item.id : result), 0) + 1
-  )
+  return state.reduce((result, item) => (item.id > result ? item.id : result), 0) + 1
+}
+
+export function letters(state = [], action) {
+  switch (action.type) {
+    case ADD_LETTER:
+      return [...state, action.letter]
+    default:
+      return state
+  }
 }
 
 export function todos(state = [], action) {
