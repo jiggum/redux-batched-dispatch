@@ -24,11 +24,12 @@ describe('createStore', () => {
     const store = createStore(combineReducers(reducers), reduxBatchedDispatch())
     const methods = Object.keys(store)
 
-    expect(methods.length).toBe(4)
+    expect(methods.length).toBe(5)
     expect(methods).toContain('subscribe')
     expect(methods).toContain('dispatch')
     expect(methods).toContain('getState')
     expect(methods).toContain('replaceReducer')
+    expect(methods).toContain('clearActionQueue')
   })
 
   it('passes the initial state', () => {

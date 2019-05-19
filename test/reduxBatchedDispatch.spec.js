@@ -525,5 +525,73 @@ describe('reduxBatchedDispatch', () => {
         store.dispatch(addLetter('D4'), DISPATCH_DEBOUNCE)
       }, 300)
     })
+
+    it('clearActionQueue', done => {
+      const store = createStore(
+        reducers.todos,
+        reduxBatchedDispatch({
+          [DISPATCH_THROTTLE]: dispatch => throttle(dispatch, 100),
+        }),
+      )
+
+      function* stateCheckerGen() {
+        yield expect(store.getState()).toEqual([
+          {
+            id: 1,
+            text: 'Hello',
+          },
+        ])
+        yield expect(store.getState()).toEqual([
+          {
+            id: 1,
+            text: 'Hello',
+          },
+          {
+            id: 2,
+            text: 'Limited',
+          },
+        ])
+        yield (() => {
+          expect(store.getState()).toEqual([
+            {
+              id: 1,
+              text: 'Hello',
+            },
+            {
+              id: 2,
+              text: 'Limited',
+            },
+            {
+              id: 3,
+              text: 'Dispatch',
+            },
+          ])
+          done()
+        })()
+      }
+
+      const stateChecker = stateCheckerGen()
+
+      store.subscribe(() => {
+        stateChecker.next()
+      })
+
+      expect(store.getState()).toEqual([])
+      setTimeout(() => {
+        store.dispatch(addTodo('Hello'), DISPATCH_THROTTLE)
+      }, 0)
+      setTimeout(() => {
+        store.dispatch(addTodo('Rate'), DISPATCH_THROTTLE)
+      }, 20)
+      setTimeout(() => {
+        store.clearActionQueue(DISPATCH_THROTTLE)
+      }, 30)
+      setTimeout(() => {
+        store.dispatch(addTodo('Limited'), DISPATCH_THROTTLE)
+      }, 40)
+      setTimeout(() => {
+        store.dispatch(addTodo('Dispatch'), DISPATCH_THROTTLE)
+      }, 200)
+    })
   })
 })

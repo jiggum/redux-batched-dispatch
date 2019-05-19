@@ -186,9 +186,20 @@ export default function reduxBatchedDispatch(enhancer, dispatchCreatorMap) {
         return dispatchMap[dispatchType](action)
       }
 
+      function clearActionQueue(dispatchType) {
+        if (dispatchType === undefined) {
+          Object.keys(actionQueueMap).forEach(key => {
+            actionQueueMap[key] = []
+          })
+        } else {
+          actionQueueMap[dispatchType] = []
+        }
+      }
+
       return {
         ...store,
         dispatch,
+        clearActionQueue,
       }
     }
   }
