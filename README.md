@@ -24,10 +24,10 @@ npm install --save redux-batched-dispatch
 ### Batch Action
 
 ```js
-import reduxBatchedDispatch  from 'redux-batched-dispatch';
+import { createBatchEnhancer }  from 'redux-batched-dispatch';
 import { createStore } from 'redux';
 
-const store = createStore(reducer, reduxBatchedDispatch());
+const store = createStore(reducer, createBatchEnhancer());
 
 // Batched dispatch will notify to listeners only once after store updated
 store.dispatch([
@@ -39,7 +39,7 @@ store.dispatch([
 ### Rate Limited Dispatch
 
 ```js
-import reduxBatchedDispatch  from 'redux-batched-dispatch';
+import { createBatchEnhancer }  from 'redux-batched-dispatch';
 import { createStore } from 'redux';
 import throttle from 'lodash.throttle';
 import debounce from 'lodash.debounce';
@@ -62,7 +62,7 @@ function push(value) {
 
 const store = createStore(
   reducer,
-  reduxBatchedDispatch({
+  createBatchEnhancer({
     // Invoke `dispatch`, but not more than once every 100ms.
     'DISPATCH_THROTTLE': dispatch => throttle(dispatch, 100, { leading: false }),
     // Invoke `dispatch`, debouncing 100ms
@@ -94,12 +94,12 @@ setTimeout(() => { store.dispatch(push('D4'), 'DISPATCH_DEBOUNCE') }, 300);
 You can use extra middlewares like [redux-thunk](https://github.com/reduxjs/redux-thunk), [redux-saga](https://github.com/redux-saga/redux-saga), [redux-observable](https://github.com/redux-observable/redux-observable), etc..
 
 ```js
-import reduxBatchedDispatch  from 'redux-batched-dispatch';
+import { createBatchEnhancer }  from 'redux-batched-dispatch';
 import { createStore, applyMiddleware } from 'redux';
 
 const store = createStore(
   reducer,
-  reduxBatchedDispatch(
+  createBatchEnhancer(
     applyMiddleware(exampleMiddleware),
     {
       'DISPATCH_DEBOUNCE': dispatch => debounce(dispatch, 100),
@@ -113,13 +113,13 @@ const store = createStore(
 ### ES6 module
 
 ```js
-import reduxBatchedDispatch from 'redux-batched-dispatch';
+import { createBatchEnhancer } from 'redux-batched-dispatch';
 ```
 
 ### CommonJS
 
 ```js
-const reduxBatchedDispatch = require('redux-batched-dispatch');
+const { createBatchEnhancer } = require('redux-batched-dispatch');
 ```
 
 ### Browser

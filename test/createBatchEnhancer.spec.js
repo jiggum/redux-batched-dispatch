@@ -16,11 +16,11 @@ import { addLetter, requestAddTodo, addTodo, unknownActions } from './helpers/ac
 import * as reducers from './helpers/reducers'
 import mockFetch from './helpers/mockFetch'
 
-import reduxBatchedDispatch from '../src'
+import { createBatchEnhancer } from '../src'
 
-describe('reduxBatchedDispatch', () => {
+describe('createBatchEnhancer', () => {
   it('dispatch with batched actions', () => {
-    const store = createStore(reducers.todos, reduxBatchedDispatch())
+    const store = createStore(reducers.todos, createBatchEnhancer())
     expect(store.getState()).toEqual([])
 
     store.dispatch([addTodo('Hello'), addTodo('World')])
@@ -38,7 +38,7 @@ describe('reduxBatchedDispatch', () => {
 
   describe('subscribe', () => {
     it('liteners must call once when dispatch batched actions', () => {
-      const store = createStore(reducers.todos, reduxBatchedDispatch())
+      const store = createStore(reducers.todos, createBatchEnhancer())
       const listenerA = jest.fn()
       const listenerB = jest.fn()
 
@@ -56,7 +56,7 @@ describe('reduxBatchedDispatch', () => {
 
   describe('Symbol.observable', () => {
     it('liteners must call once when dispatch batched actions', () => {
-      const store = createStore(reducers.todos, reduxBatchedDispatch())
+      const store = createStore(reducers.todos, createBatchEnhancer())
       const observable = store[$$observable]()
       const listenerA = jest.fn()
       const listenerB = jest.fn()
@@ -78,7 +78,7 @@ describe('reduxBatchedDispatch', () => {
 
   describe('redux-thunk', () => {
     it('dispatch batched actions before thunk', async () => {
-      const store = createStore(reducers.todos, reduxBatchedDispatch(applyMiddleware(thunk)))
+      const store = createStore(reducers.todos, createBatchEnhancer(applyMiddleware(thunk)))
 
       const thunkAction = dispatch => {
         dispatch(addTodo('Hello'))
@@ -115,7 +115,7 @@ describe('reduxBatchedDispatch', () => {
     })
 
     it('dispatch batched actions after thunk', async () => {
-      const store = createStore(reducers.todos, reduxBatchedDispatch(applyMiddleware(thunk)))
+      const store = createStore(reducers.todos, createBatchEnhancer(applyMiddleware(thunk)))
 
       const thunkAction = dispatch => {
         return mockFetch({ response: ['Hello', 'World'] }).then(response =>
@@ -155,7 +155,7 @@ describe('reduxBatchedDispatch', () => {
 
         const store = createStore(
           reducers.todos,
-          reduxBatchedDispatch(applyMiddleware(epicMiddleware)),
+          createBatchEnhancer(applyMiddleware(epicMiddleware)),
         )
 
         epicMiddleware.run(rootEpic)
@@ -198,7 +198,7 @@ describe('reduxBatchedDispatch', () => {
 
         const store = createStore(
           reducers.todos,
-          reduxBatchedDispatch(applyMiddleware(epicMiddleware)),
+          createBatchEnhancer(applyMiddleware(epicMiddleware)),
         )
 
         epicMiddleware.run(rootEpic)
@@ -242,7 +242,7 @@ describe('reduxBatchedDispatch', () => {
 
       const store = createStore(
         reducers.todos,
-        reduxBatchedDispatch(applyMiddleware(sagaMiddleware)),
+        createBatchEnhancer(applyMiddleware(sagaMiddleware)),
       )
 
       sagaMiddleware.run(mySaga)
@@ -301,7 +301,7 @@ describe('reduxBatchedDispatch', () => {
 
       const store = createStore(
         reducers.todos,
-        reduxBatchedDispatch(applyMiddleware(sagaMiddleware)),
+        createBatchEnhancer(applyMiddleware(sagaMiddleware)),
       )
 
       sagaMiddleware.run(mySaga)
@@ -337,7 +337,7 @@ describe('reduxBatchedDispatch', () => {
     it('throttled dispatch', done => {
       const store = createStore(
         reducers.todos,
-        reduxBatchedDispatch({
+        createBatchEnhancer({
           [DISPATCH_THROTTLE]: dispatch => throttle(dispatch, 100),
         }),
       )
@@ -410,7 +410,7 @@ describe('reduxBatchedDispatch', () => {
     it('debounced dispatch', done => {
       const store = createStore(
         reducers.todos,
-        reduxBatchedDispatch({
+        createBatchEnhancer({
           [DISPATCH_DEBOUNCE]: dispatch => debounce(dispatch, 100),
         }),
       )
@@ -477,7 +477,7 @@ describe('reduxBatchedDispatch', () => {
     it('integration test', done => {
       const store = createStore(
         reducers.letters,
-        reduxBatchedDispatch({
+        createBatchEnhancer({
           [DISPATCH_THROTTLE]: dispatch => throttle(dispatch, 100, { leading: false }),
           [DISPATCH_DEBOUNCE]: dispatch => debounce(dispatch, 100),
         }),
@@ -529,7 +529,7 @@ describe('reduxBatchedDispatch', () => {
     it('clearActionQueue', done => {
       const store = createStore(
         reducers.todos,
-        reduxBatchedDispatch({
+        createBatchEnhancer({
           [DISPATCH_THROTTLE]: dispatch => throttle(dispatch, 100),
         }),
       )
