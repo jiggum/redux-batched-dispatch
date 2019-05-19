@@ -156,13 +156,19 @@ export default function reduxBatchedDispatch(enhancer, dispatchCreatorMap) {
           }
 
           actionQueueMap[dispatchType] = []
-          dispatchMap[dispatchType] = dispatchCreatorMap[dispatchType](() => {
-            const queue = actionQueueMap[dispatchType]
-            if (queue.length > 0) {
-              store.dispatch(queue)
-              actionQueueMap[dispatchType] = []
+          dispatchMap[dispatchType] = (() => {
+            const rateLimitedDispatch = dispatchCreatorMap[dispatchType](() => {
+              const queue = actionQueueMap[dispatchType]
+              if (queue.length > 0) {
+                store.dispatch(queue)
+                actionQueueMap[dispatchType] = []
+              }
+            })
+            return action => {
+              actionQueueMap[dispatchType].push(action)
+              rateLimitedDispatch(action)
             }
-          })
+          })()
         })
       }
 
@@ -177,10 +183,7 @@ export default function reduxBatchedDispatch(enhancer, dispatchCreatorMap) {
           )
         }
 
-        actionQueueMap[dispatchType].push(action)
-        dispatchMap[dispatchType](action)
-
-        return undefined
+        return dispatchMap[dispatchType](action)
       }
 
       return {
