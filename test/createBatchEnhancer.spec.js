@@ -2,7 +2,6 @@ import { createStore, applyMiddleware } from 'redux'
 import { from } from 'rxjs'
 import { map, concatMap } from 'rxjs/operators'
 import { TestScheduler } from 'rxjs/testing'
-import $$observable from 'symbol-observable'
 import thunk from 'redux-thunk'
 import { createEpicMiddleware, ofType } from 'redux-observable'
 import createSagaMiddleware from 'redux-saga'
@@ -12,70 +11,13 @@ import debounce from 'lodash.debounce'
 
 import { REQUEST_ADD_TODO, DISPATCH_IN_OBSERVABLE } from './helpers/actionTypes'
 import { DISPATCH_THROTTLE, DISPATCH_DEBOUNCE } from './helpers/dispatchTypes'
-import { addLetter, requestAddTodo, addTodo, unknownActions } from './helpers/actionCreators'
+import { addLetter, requestAddTodo, addTodo } from './helpers/actionCreators'
 import * as reducers from './helpers/reducers'
 import mockFetch from './helpers/mockFetch'
 
 import { createBatchEnhancer } from '../src'
 
 describe('createBatchEnhancer', () => {
-  it('dispatch with batched actions', () => {
-    const store = createStore(reducers.todos, createBatchEnhancer())
-    expect(store.getState()).toEqual([])
-
-    store.dispatch([addTodo('Hello'), addTodo('World')])
-    expect(store.getState()).toEqual([
-      {
-        id: 1,
-        text: 'Hello',
-      },
-      {
-        id: 2,
-        text: 'World',
-      },
-    ])
-  })
-
-  describe('subscribe', () => {
-    it('liteners must call once when dispatch batched actions', () => {
-      const store = createStore(reducers.todos, createBatchEnhancer())
-      const listenerA = jest.fn()
-      const listenerB = jest.fn()
-
-      store.subscribe(listenerA)
-      store.dispatch(unknownActions())
-      expect(listenerA.mock.calls.length).toBe(1)
-      expect(listenerB.mock.calls.length).toBe(0)
-
-      store.subscribe(listenerB)
-      store.dispatch(unknownActions())
-      expect(listenerA.mock.calls.length).toBe(2)
-      expect(listenerB.mock.calls.length).toBe(1)
-    })
-  })
-
-  describe('Symbol.observable', () => {
-    it('liteners must call once when dispatch batched actions', () => {
-      const store = createStore(reducers.todos, createBatchEnhancer())
-      const observable = store[$$observable]()
-      const listenerA = jest.fn()
-      const listenerB = jest.fn()
-
-      expect(listenerA.mock.calls.length).toBe(0)
-      observable.subscribe({ next: listenerA })
-      expect(listenerA.mock.calls.length).toBe(1)
-      store.dispatch(unknownActions())
-      expect(listenerA.mock.calls.length).toBe(2)
-      expect(listenerB.mock.calls.length).toBe(0)
-
-      observable.subscribe({ next: listenerB })
-      expect(listenerB.mock.calls.length).toBe(1)
-      store.dispatch(unknownActions())
-      expect(listenerA.mock.calls.length).toBe(3)
-      expect(listenerB.mock.calls.length).toBe(2)
-    })
-  })
-
   describe('redux-thunk', () => {
     it('dispatch batched actions before thunk', async () => {
       const store = createStore(reducers.todos, createBatchEnhancer(applyMiddleware(thunk)))
