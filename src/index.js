@@ -1,3 +1,4 @@
 import createBatchEnhancer from './createBatchEnhancer'
+import batchAction from './batchAction'
 
-export { createBatchEnhancer } // eslint-disable-line import/prefer-default-export
+export { createBatchEnhancer, batchAction }

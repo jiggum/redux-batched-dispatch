@@ -1,0 +1,2 @@
+export const ACTION_TYPE__BATCH = 'REDUX_BATCHED_DISPATCH__BATCH'
+export const ACTION_META__DISPATCH_TYPE = 'dispatchType'

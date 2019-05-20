@@ -1,6 +1,6 @@
 import $$observable from 'symbol-observable'
 
-export default function(next) {
+export default function batchActionEnhancer(next) {
   let currentListeners = []
   let nextListeners = currentListeners
   let isDispatching = false
