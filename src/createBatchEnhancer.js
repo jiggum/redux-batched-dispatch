@@ -12,7 +12,7 @@ export default function createBatchEnhancer(enhancer, dispatchCreatorMap) {
 
   return next => {
     return (...args) => {
-      const { enhancer: batchDispatchEnhancer, clearActionQueue } = createBatchDispatchEnhancer(
+      const { enhancer: batchDispatchEnhancer, getActionQueue } = createBatchDispatchEnhancer(
         dispatchCreatorMap,
       )
 
@@ -30,7 +30,7 @@ export default function createBatchEnhancer(enhancer, dispatchCreatorMap) {
 
       return {
         ...store,
-        clearActionQueue,
+        getActionQueue,
       }
     }
   }

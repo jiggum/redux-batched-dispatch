@@ -468,7 +468,7 @@ describe('createBatchEnhancer', () => {
       }, 300)
     })
 
-    it('clearActionQueue', done => {
+    it('getActionQueue', done => {
       const store = createStore(
         reducers.todos,
         createBatchEnhancer({
@@ -518,7 +518,10 @@ describe('createBatchEnhancer', () => {
         stateChecker.next()
       })
 
+      const throttleActionQueue = store.getActionQueue(DISPATCH_THROTTLE)
+
       expect(store.getState()).toEqual([])
+      expect(throttleActionQueue).toEqual([])
       setTimeout(() => {
         store.dispatch(addTodo('Hello'), DISPATCH_THROTTLE)
       }, 0)
@@ -526,11 +529,17 @@ describe('createBatchEnhancer', () => {
         store.dispatch(addTodo('Rate'), DISPATCH_THROTTLE)
       }, 20)
       setTimeout(() => {
-        store.clearActionQueue(DISPATCH_THROTTLE)
+        throttleActionQueue.length = 0
       }, 30)
       setTimeout(() => {
         store.dispatch(addTodo('Limited'), DISPATCH_THROTTLE)
       }, 40)
+      setTimeout(() => {
+        store.dispatch(addTodo('Batched'), DISPATCH_THROTTLE)
+      }, 50)
+      setTimeout(() => {
+        throttleActionQueue.splice(throttleActionQueue.length - 1, 1)
+      }, 60)
       setTimeout(() => {
         store.dispatch(addTodo('Dispatch'), DISPATCH_THROTTLE)
       }, 200)

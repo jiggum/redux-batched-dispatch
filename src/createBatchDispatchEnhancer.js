@@ -18,7 +18,7 @@ export default function createBatchDispatchEnhancer(dispatchCreatorMap) {
           const queue = actionQueueMap[dispatchType]
           if (queue.length > 0) {
             lastStoreDispatch(queue)
-            actionQueueMap[dispatchType] = []
+            actionQueueMap[dispatchType].length = 0
           }
         })
         return action => {
@@ -29,14 +29,12 @@ export default function createBatchDispatchEnhancer(dispatchCreatorMap) {
     })
   }
 
-  function clearActionQueue(dispatchType) {
+  function getActionQueue(dispatchType) {
     if (dispatchType === undefined) {
-      Object.keys(actionQueueMap).forEach(key => {
-        actionQueueMap[key] = []
-      })
-    } else {
-      actionQueueMap[dispatchType] = []
+      throw new Error('Expected first argument to be string of dispatchType')
     }
+
+    return actionQueueMap[dispatchType]
   }
 
   function enhancer(next) {
@@ -74,6 +72,6 @@ export default function createBatchDispatchEnhancer(dispatchCreatorMap) {
 
   return {
     enhancer,
-    clearActionQueue,
+    getActionQueue,
   }
 }

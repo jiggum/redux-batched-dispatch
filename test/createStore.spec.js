@@ -29,7 +29,7 @@ describe('createStore', () => {
     expect(methods).toContain('dispatch')
     expect(methods).toContain('getState')
     expect(methods).toContain('replaceReducer')
-    expect(methods).toContain('clearActionQueue')
+    expect(methods).toContain('getActionQueue')
   })
 
   it('passes the initial state', () => {
