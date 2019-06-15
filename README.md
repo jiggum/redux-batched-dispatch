@@ -108,6 +108,39 @@ const store = createStore(
 );
 ```
 
+## Extra API
+
+### batchAction
+
+>`batchAction(action, dispatchType)`
+
+You can also use batched dispatch with `batchAction`
+
+#### Arguments
+  
+***action (Array | Object)***: The redux action
+
+***dispatchType (string)***: The type of dispatch defined when use `createBatchEnhancer` 
+
+#### Example
+```js
+import { batchAction }  from 'redux-batched-dispatch';
+
+dispatch(batchAction([
+  { type: 'Hello' },
+  { type: 'World' },
+], 'DISPATCH_THROTTLE'));
+```
+It is useful on middleware(ex: redux-saga)
+```js
+function* createTodo() {
+  yield put(batchAction([
+    { type: 'Hello' },
+    { type: 'World' },
+  ], 'DISPATCH_THROTTLE'));
+}
+```
+
 ## Module Usage
 
 ### ES6 module
