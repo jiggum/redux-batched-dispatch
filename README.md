@@ -108,6 +108,28 @@ const store = createStore(
 );
 ```
 
+## Module Usage
+
+### ES6 module
+
+```js
+import { createBatchEnhancer } from 'redux-batched-dispatch';
+```
+
+### CommonJS
+
+```js
+const { createBatchEnhancer } = require('redux-batched-dispatch');
+```
+
+### Browser
+
+Add below `<script>` tag to the HTML page right before the closing `</body>` tag
+```html
+<script src="https://unpkg.com/redux-batched-dispatch@0/dist/index.js" crossorigin></script>
+```
+And use global `reduxBatchedDispatch` variable
+
 ## Extra API
 
 ### batchAction
@@ -141,24 +163,25 @@ function* createTodo() {
 }
 ```
 
-## Module Usage
+### store.getActionQueue
 
-### ES6 module
+>`store.getActionQueue(dispatchType)`
+
+Get queue which contains actions from dispatch. This queue's reference will **never** change
+
+#### Arguments
+
+***dispatchType (string)***: The type of dispatch defined when use `createBatchEnhancer`
+
+#### Example
 
 ```js
-import { createBatchEnhancer } from 'redux-batched-dispatch';
+const store = createStore(
+  reducer,
+  createBatchEnhancer({
+    'DISPATCH_DEBOUNCE': dispatch => debounce(dispatch, 100),
+  })
+);
+
+const throttleQueue = store.getActionQueue('DISPATCH_DEBOUNCE')
 ```
-
-### CommonJS
-
-```js
-const { createBatchEnhancer } = require('redux-batched-dispatch');
-```
-
-### Browser
-
-Add below `<script>` tag to the HTML page right before the closing `</body>` tag
-```html
-<script src="https://unpkg.com/redux-batched-dispatch@0/dist/index.js" crossorigin></script>
-```
-And use global `reduxBatchedDispatch` variable
