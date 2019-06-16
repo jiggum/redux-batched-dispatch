@@ -1,6 +1,6 @@
 {
   "name": "redux-batched-dispatch",
-  "version": "0.4.2",
+  "version": "1.0.0",
   "description": "redux store enhancer to allow batched dispatch",
   "main": "lib/index.js",
   "module": "es/index.js",
