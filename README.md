@@ -183,5 +183,47 @@ const store = createStore(
   })
 );
 
-const throttleQueue = store.getActionQueue('DISPATCH_DEBOUNCE')
+const throttleQueue = store.getActionQueue('DISPATCH_DEBOUNCE');
 ```
+
+## Guide
+
+### Cancel actions in the queue
+
+```js
+const throttleQueue = store.getActionQueue('DISPATCH_DEBOUNCE');
+
+// Clear all actions
+throttleQueue.length = 0;
+
+// Remove last action
+throttleQueue.pop();
+
+// Remove second action
+throttleQueue.splice(1, 1);
+```
+
+### Cancel rate limited dispatch
+ 
+```js
+import { createBatchEnhancer }  from 'redux-batched-dispatch';
+import { createStore } from 'redux';
+import throttle from 'lodash.throttle';
+
+let throttledDispatch;
+
+const store = createStore(
+  reducer,
+  createBatchEnhancer({
+    'DISPATCH_THROTTLE': dispatch => {
+      throttledDispatch = throttle(dispatch, 100);
+      return throttledDispatch;
+    }
+  }),
+);
+
+$(window).on('popstate', throttledDispatch.cancel);
+```
+
+Even if cancel the `throttledDispatch`, there are still actions in queue
+If want to clear the queue, see the section [Cancel rate limited dispatch](#cancel-rate-limited-dispatch)
