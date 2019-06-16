@@ -144,7 +144,7 @@ const { createBatchEnhancer } = require('redux-batched-dispatch');
 
 Add below `<script>` tag to the HTML page right before the closing `</body>` tag
 ```html
-<script src="https://unpkg.com/redux-batched-dispatch@0/dist/index.js" crossorigin></script>
+<script src="https://unpkg.com/redux-batched-dispatch@1/dist/index.js" crossorigin></script>
 ```
 And use global `reduxBatchedDispatch` variable
 
