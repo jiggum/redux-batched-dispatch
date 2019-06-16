@@ -7,6 +7,24 @@ Redux store enhancer to allow batched dispatch.
 [![min](https://img.shields.io/bundlephobia/min/redux-batched-dispatch.svg)](https://www.npmjs.com/package/redux-batched-dispatch)
 [![minzip](https://img.shields.io/bundlephobia/minzip/redux-batched-dispatch.svg)](https://www.npmjs.com/package/redux-batched-dispatch)
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Batch Action](#batch-action)
+  - [Rate Limited Dispatch](#rate-limited-dispatch)
+  - [With Middlewares](#with-middlewares)
+- [Module Usage](#module-usage)
+  - [ES6 module](#es6-module)
+  - [CommonJS](#commonjs)
+  - [Browser](#browser)
+- [Extra API](#extra-api)
+  - [batchAction](#batchaction)
+  - [store.getActionQueue](#store.getActionQueue)
+- [Guide](#guide)
+  - [Cancel actions in the queue](#cancel-actions-in-the-queue)
+  - [Cancel rate limited dispatch](#cancel-rate-limited-dispatch)
+
 ## Installation
 
 yarn:
@@ -226,4 +244,4 @@ $(window).on('popstate', throttledDispatch.cancel);
 ```
 
 Even if cancel the `throttledDispatch`, there are still actions in queue
-If want to clear the queue, see the section [Cancel rate limited dispatch](#cancel-rate-limited-dispatch)
+If want to clear the queue, see the section [Cancel actions in the queue](#cancel-actions-in-the-queue)
