@@ -468,6 +468,50 @@ describe('createBatchEnhancer', () => {
       }, 300)
     })
 
+    it('cancel rate limited dispatch', done => {
+      let throttledDispatch
+      const store = createStore(
+        reducers.letters,
+        createBatchEnhancer({
+          [DISPATCH_THROTTLE]: dispatch => {
+            throttledDispatch = throttle(dispatch, 100)
+            return throttledDispatch
+          },
+        }),
+      )
+
+      function* stateCheckerGen() {
+        yield expect(store.getState()).toEqual(['T1'])
+        yield (() => {
+          expect(store.getState()).toEqual(['T1', 'T2', 'T3', 'T4'])
+          done()
+        })()
+      }
+
+      const stateChecker = stateCheckerGen()
+
+      store.subscribe(() => {
+        stateChecker.next()
+      })
+
+      expect(store.getState()).toEqual([])
+      setTimeout(() => {
+        store.dispatch(addLetter('T1'), DISPATCH_THROTTLE)
+      }, 0)
+      setTimeout(() => {
+        store.dispatch(addLetter('T2'), DISPATCH_THROTTLE)
+      }, 20)
+      setTimeout(() => {
+        store.dispatch(addLetter('T3'), DISPATCH_THROTTLE)
+      }, 40)
+      setTimeout(() => {
+        throttledDispatch.cancel()
+      }, 60)
+      setTimeout(() => {
+        store.dispatch(addLetter('T4'), DISPATCH_THROTTLE)
+      }, 260)
+    })
+
     it('getActionQueue', done => {
       const store = createStore(
         reducers.todos,
